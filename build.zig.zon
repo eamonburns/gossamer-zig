@@ -1,0 +1,21 @@
+.{
+    .name = .gossamer_zig,
+    .version = "0.0.0",
+    .fingerprint = 0xb08996bc428e739c, // Changing this has security and trust implications.
+    .minimum_zig_version = "0.17.0-dev.1936+5a625d5f3",
+    .dependencies = .{
+        .upstream = .{
+            .url = "https://github.com/joeycastillo/gossamer/archive/03aedcbdf94a916ac77f1320cd15eb9c5853cdfd.tar.gz",
+            .hash = "N-V-__8AAOdOBgGeK24tIf0jLIjyryq3hccHcm07JMpfaQ2o",
+        },
+        .foundationlibc = .{
+            .url = "https://github.com/ZigEmbeddedGroup/microzig/releases/download/0.17.9/foundationlibc.tar.gz",
+            .hash = "foundationlibc-0.0.0-LAEuPB2kAADQ5pwwSSJmg6HHD_8fZwmzng2CB61PhDLD",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}

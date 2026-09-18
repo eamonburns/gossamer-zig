@@ -1,0 +1,16 @@
+.{
+    .name = .sensorwatch_blinky,
+    .version = "0.0.0",
+    .fingerprint = 0xf2a38e169f7bd9f0, // Changing this has security and trust implications.
+    .minimum_zig_version = "0.17.0-dev.1936+5a625d5f3",
+    .dependencies = .{
+        .gossamer = .{
+            .path = "../../",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
