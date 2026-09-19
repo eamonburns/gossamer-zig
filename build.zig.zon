@@ -12,6 +12,10 @@
             .url = "https://github.com/ZigEmbeddedGroup/microzig/releases/download/0.17.9/foundationlibc.tar.gz",
             .hash = "foundationlibc-0.0.0-LAEuPB2kAADQ5pwwSSJmg6HHD_8fZwmzng2CB61PhDLD",
         },
+        .uf2 = .{
+            .url = "https://github.com/ZigEmbeddedGroup/microzig/releases/download/0.17.9/mz_tools_uf2.tar.gz",
+            .hash = "mz_tools_uf2-0.0.0-AXVSU6-HAAC03L5DA-N1yAnLv0VIoNe5nnYvolddQIlP",
+        },
     },
     .paths = .{
         "build.zig",

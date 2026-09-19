@@ -1,5 +1,7 @@
 const std = @import("std");
 
+const uf2 = @import("uf2");
+
 pub const Board = enum {
     sensorwatch_blue,
     sensorwatch_green,
@@ -158,4 +160,9 @@ pub fn build(b: *std.Build) void {
     });
     firmware_elf.setLinkerScript(linker_script);
     b.installArtifact(firmware_elf);
+
+    const uf2_dep = b.dependency("uf2", .{});
+    const firmware_uf2 = uf2.from_elf(uf2_dep, firmware_elf.getEmittedBin(), .{});
+    b.getInstallStep().dependOn(&b.addInstallFile(firmware_uf2, "firmware.uf2").step);
+    b.addNamedLazyPath("firmware.uf2", firmware_uf2);
 }

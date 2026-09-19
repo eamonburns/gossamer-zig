@@ -14,6 +14,8 @@ fn setup() void {
 fn loop() bool {
     led.toggle();
     delay_ms(500);
+    led.toggle();
+    delay_ms(1000);
     return false;
 }
 

@@ -14,6 +14,6 @@ pub fn build(b: *std.Build) void {
 
     const firmware_exe = gossamer_dep.artifact("firmware.elf");
     firmware_exe.root_module.addImport("app", app_mod);
-
     b.installArtifact(firmware_exe);
+    b.getInstallStep().dependOn(&b.addInstallFile(gossamer_dep.namedLazyPath("firmware.uf2"), "firmware.uf2").step);
 }
