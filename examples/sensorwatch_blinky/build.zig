@@ -1,4 +1,5 @@
 const std = @import("std");
+const gossamer = @import("gossamer");
 
 pub fn build(b: *std.Build) void {
     const gossamer_dep = b.dependency("gossamer", .{
@@ -7,13 +8,9 @@ pub fn build(b: *std.Build) void {
 
     const app_mod = b.addModule("sensorwatch_blinky", .{
         .root_source_file = b.path("src/app.zig"),
-        .imports = &.{
-            .{ .name = "gossamer", .module = gossamer_dep.module("gossamer") },
-        },
     });
-
-    const firmware_exe = gossamer_dep.artifact("firmware.elf");
-    firmware_exe.root_module.addImport("app", app_mod);
-    b.installArtifact(firmware_exe);
-    b.getInstallStep().dependOn(&b.addInstallFile(gossamer_dep.namedLazyPath("firmware.uf2"), "firmware.uf2").step);
+    const firmware_uf2 = gossamer.addFirmware(gossamer_dep, .{
+        .root_module = app_mod,
+    });
+    b.getInstallStep().dependOn(&b.addInstallFile(firmware_uf2, "firmware.uf2").step);
 }

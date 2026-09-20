@@ -1,4 +1,11 @@
 const gossamer = @import("gossamer");
+comptime {
+    // TODO: Is there a way to not need this?
+
+    // Force `app_*` functions to be exported
+    _ = gossamer;
+}
+
 pub const gossamer_options: gossamer.Options = .{
     .initFn = init,
     .setupFn = setup,

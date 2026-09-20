@@ -48,6 +48,54 @@ pub const Board = enum {
     }
 };
 
+pub const FirmwareOptions = struct {
+    /// App root module
+    root_module: *std.Build.Module,
+
+    emscripten: bool = false,
+};
+
+pub fn addFirmware(gossamer_dep: *std.Build.Dependency, options: FirmwareOptions) std.Build.LazyPath {
+    const project = gossamer_dep.builder;
+
+    options.root_module.resolved_target = getTarget(project, options.emscripten);
+    options.root_module.optimize = .ReleaseSmall;
+
+    options.root_module.addImport("gossamer", gossamer_dep.module("gossamer"));
+    const firmware_elf = project.addExecutable(.{
+        .name = "firmware.elf",
+        .root_module = options.root_module,
+    });
+
+    if (!options.emscripten) {
+        firmware_elf.setLinkerScript(gossamer_dep.namedLazyPath("linker_script"));
+    }
+
+    // Convert elf to uf2
+
+    const elf2uf2_exe = gossamer_dep.artifact("elf2uf2");
+    const elf2uf2_cmd = project.addRunArtifact(elf2uf2_exe);
+
+    elf2uf2_cmd.addArg("--elf-path");
+    elf2uf2_cmd.addArtifactArg(firmware_elf);
+
+    elf2uf2_cmd.addArg("--output-path");
+    return elf2uf2_cmd.addOutputFileArg("firmware.uf2");
+}
+
+pub fn getTarget(b: *std.Build, emscripten: bool) std.Build.ResolvedTarget {
+    return if (emscripten) {
+        @panic("TODO: emscripten");
+    } else b.resolveTargetQuery(.{
+        .cpu_arch = .thumb,
+        .os_tag = .freestanding,
+        .abi = .eabi,
+        .cpu_model = .{
+            .explicit = &std.Target.arm.cpu.cortex_m0plus,
+        },
+    });
+}
+
 pub fn build(b: *std.Build) void {
     const optimize: std.builtin.OptimizeMode = .ReleaseSmall;
 
@@ -57,17 +105,7 @@ pub fn build(b: *std.Build) void {
         return;
     };
 
-    const target = if (emscripten) {
-        std.log.err("TODO: emscripten support", .{});
-        return;
-    } else b.resolveTargetQuery(.{
-        .cpu_arch = .thumb,
-        .os_tag = .freestanding,
-        .abi = .eabi,
-        .cpu_model = .{
-            .explicit = &std.Target.arm.cpu.cortex_m0plus,
-        },
-    });
+    const target = getTarget(b, emscripten);
 
     const upstream_dep = b.dependency("upstream", .{});
     const foundationlibc_dep = b.dependency("foundationlibc", .{
@@ -76,8 +114,6 @@ pub fn build(b: *std.Build) void {
     });
 
     const gossamer_mod = b.addModule("gossamer", .{
-        .target = target,
-        .optimize = optimize,
         .root_source_file = b.path("src/gossamer.zig"),
     });
     // Definitions provided within this repo (like `malloc`)
@@ -89,6 +125,7 @@ pub fn build(b: *std.Build) void {
 
     // TODO: Should this be inside the `if`?
     const linker_script = upstream_dep.path(b.fmt("chips/{s}/linker/{s}.ld", .{ board.chip(), board.ldScript() }));
+    b.addNamedLazyPath("linker_script", linker_script);
 
     if (!emscripten) {
         // Settings and flags for building on hardware
@@ -152,17 +189,6 @@ pub fn build(b: *std.Build) void {
     // TODO: Get git hash
     gossamer_mod.addCMacro("BUILD_GIT_HASH", "\"noHash\"");
 
-    // ===== rules.mk ===== //
-
-    const firmware_elf = b.addExecutable(.{
-        .name = "firmware.elf",
-        .root_module = gossamer_mod,
-    });
-    firmware_elf.setLinkerScript(linker_script);
-    b.installArtifact(firmware_elf);
-
     const uf2_dep = b.dependency("uf2", .{});
-    const firmware_uf2 = uf2.from_elf(uf2_dep, firmware_elf.getEmittedBin(), .{});
-    b.getInstallStep().dependOn(&b.addInstallFile(firmware_uf2, "firmware.uf2").step);
-    b.addNamedLazyPath("firmware.uf2", firmware_uf2);
+    b.installArtifact(uf2_dep.artifact("elf2uf2"));
 }

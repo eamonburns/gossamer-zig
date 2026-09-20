@@ -6,17 +6,10 @@ const std = @import("std");
 
 const MzAllocator = @import("MzAllocator.zig");
 
-// End of the .bss section (defined in saml22n18.ld)
-extern const _end: u8;
-// End of the stack (defined in saml22n18.ld)
-extern const _stack_top: u8;
-
-// TODO: Use the heap
-var mz_allocator_buf: [4096]u8 = undefined;
-var mz_allocator: MzAllocator = undefined;
+pub var mz_allocator: MzAllocator = undefined;
 // HACK:? This is taking a pointer to an undefined allocator. I think this is actually
 // ok, because it is by-pointer, and the allocator gets initialized in `app_init`.
-var gpa: std.mem.Allocator = mz_allocator.allocator();
+pub const gpa: std.mem.Allocator = mz_allocator.allocator();
 
 export fn malloc(size: usize) ?*anyopaque {
     const buf = gpa.rawAlloc(8 + size, .@"8", @returnAddress()) orelse {
@@ -54,8 +47,11 @@ pub const Options = struct {
     loopFn: fn () bool,
 };
 
-const app = @import("app");
-const options: Options = if (@hasDecl(app, "gossamer_options")) app.gossamer_options else @compileError("app does not declare gossamer_options");
+const root = @import("root");
+const options: Options = if (@hasDecl(root, "gossamer_options"))
+    root.gossamer_options
+else
+    @compileError("root module does not declare gossamer_options");
 
 export fn app_init() void {
     mz_allocator = MzAllocator.init_with_heap(0x4000) catch unreachable;
