@@ -26,7 +26,7 @@ fn loop() bool {
     return false;
 }
 
-// TODO: Don't hardcode these types
+// TODO: Pull definitions into `common`
 
 const hal_gpio = struct {
     pub const PORTA = 0;
@@ -47,6 +47,8 @@ const led = struct {
         PORT.group[port].outtgl.reg = (1 << pin);
     }
 };
+
+// TODO: Use types from ../../../chips/saml22/ATSAML22J18A.zig
 
 // #define PORT_PINCFG_INEN_Pos        1            /**< \brief (PORT_PINCFG) Input Enable */
 // #define PORT_PINCFG_INEN            (0x1ul << PORT_PINCFG_INEN_Pos)
