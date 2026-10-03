@@ -1,7 +1,7 @@
 # SAM L22
 
 Generated using [`regz` v0.17.9](https://github.com/ZigEmbeddedGroup/microzig/tree/0.17.9/tools/regz)
-from source definition file [`ATSAML22J18A.svd`](https://raw.githubusercontent.com/cmsis-svd/cmsis-svd-data/refs/heads/main/data/Atmel/ATSAML22J18A.svd).
+from source definition file [`ATSAML22J18A.svd`](https://raw.githubusercontent.com/cmsis-svd/cmsis-svd-data/c65f8551e57c770344d229dcaa0bf838fa29aff4/data/Atmel/ATSAML22J18A.svd).
 
 ## TODO
 
